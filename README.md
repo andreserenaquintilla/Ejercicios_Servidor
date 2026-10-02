@@ -1,2 +1,1 @@
-# Ejercicios_Servidor
-Básicamente, los ejercicios que estoy realizando en la asignatura de Servidor
+No tiene mucho más, son los ejercicios de un estudiante de DAW2
