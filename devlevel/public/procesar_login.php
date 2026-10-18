@@ -9,3 +9,7 @@ if ($username === "" || $username === null || $password === "" || $password === 
   echo "Introduce un valor valido.";
   exit;
 }
+
+foreach ($usuarios as $usuario) {
+  echo $usuario['username'] . "\n";
+}
