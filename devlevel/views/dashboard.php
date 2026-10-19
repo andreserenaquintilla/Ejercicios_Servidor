@@ -7,5 +7,12 @@
 </head>
 <body>
   <h1>Dashboard</h1>
+<p>
+  Hola, 
+  <?php
+    echo htmlspecialchars($_SESSION['usuario']['nombre']);
+  ?>
+</p>
+<a href="logout.php">Cerrar sesión</a>
 </body>
 </html>
