@@ -1,8 +1,8 @@
 <?php
-declare(strict_types= 1);
-session_start();
-$_SESSION = [];
-setcookie(session_name(), '', time() - 42000, '/');
-session_destroy();
-header('Location: index.php');
-exit;
+declare(strict_types=1);
+require __DIR__ . '/../src/utilidades.php';
+require __DIR__ . '/../src/auth.php';
+
+arrancarSesion();
+cerrarSesion();
+redirigir('index.php');

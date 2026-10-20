@@ -7,6 +7,7 @@
 </head>
 <body>
   <h1>Iniciar Sesión</h1>
+  <?php require __DIR__ . '/mensajes_flash.php'; ?>
   <form method="post" action="procesar_login.php">
     <label for="username">
       Usuario
