@@ -4,5 +4,5 @@ require __DIR__ . '/../src/utilidades.php';
 require __DIR__ . '/../src/auth.php';
 
 arrancarSesion();
-cerrarSesion();
+cerrarSesionConservandoTareas();
 redirigir('index.php');

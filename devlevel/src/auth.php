@@ -8,12 +8,12 @@ declare(strict_types=1);
  */
 function arrancarSesion(): void
 {
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start([
-            'cookie_httponly' => true,
-            'cookie_samesite' => 'Strict',
-        ]);
-    }
+  if (session_status() === PHP_SESSION_NONE) {
+    session_start([
+      'cookie_httponly' => true,
+      'cookie_samesite' => 'Strict',
+    ]);
+  }
 }
 
 /**
@@ -25,12 +25,12 @@ function arrancarSesion(): void
  */
 function buscarUsuario(array $usuarios, string $username): ?array
 {
-    foreach ($usuarios as $usuario) {
-        if ($usuario['username'] === $username) {
-            return $usuario;
-        }
+  foreach ($usuarios as $usuario) {
+    if ($usuario['username'] === $username) {
+      return $usuario;
     }
-    return null;
+  }
+  return null;
 }
 
 /**
@@ -41,18 +41,19 @@ function buscarUsuario(array $usuarios, string $username): ?array
  */
 function loguearUsuario(array $usuario): void
 {
-    // ID nuevo para evitar la fijación de sesión
-    session_regenerate_id(true);
+  // ID nuevo para evitar la fijación de sesión
+  session_regenerate_id(true);
 
-    $_SESSION['usuario'] = [
-        'id' => $usuario['id'],
-        'nombre' => $usuario['nombre'],
-        'username' => $usuario['username'],
-        'rol' => $usuario['rol'],
-        'puntos' => $usuario['puntos'],
-        'nivel' => $usuario['nivel'],
-    ];
-    $_SESSION['ultimo_acceso'] = time();
+  $_SESSION['usuario'] = [
+    'id' => $usuario['id'],
+    'nombre' => $usuario['nombre'],
+    'username' => $usuario['username'],
+    'rol' => $usuario['rol'],
+    'puntos' => $usuario['puntos'],
+    'nivel' => $usuario['nivel'],
+    'completadas' => [],
+  ];
+  $_SESSION['ultimo_acceso'] = time();
 }
 
 /**
@@ -62,9 +63,9 @@ function loguearUsuario(array $usuario): void
  */
 function cerrarSesion(): void
 {
-    $_SESSION = [];
-    setcookie(session_name(), '', time() - 42000, '/');
-    session_destroy();
+  $_SESSION = [];
+  setcookie(session_name(), '', time() - 42000, '/');
+  session_destroy();
 }
 
 /**
@@ -74,5 +75,77 @@ function cerrarSesion(): void
  */
 function estaLogueado(): bool
 {
-    return isset($_SESSION['usuario']);
+  return isset($_SESSION['usuario']);
+}
+/**
+ * Si la sesión lleva más de TIMEOUT_SESION sin uso, la cierra y avisa.
+ * Si no, actualiza la hora del último acceso.
+ *
+ * @return void
+ */
+function comprobarTimeout(): void
+{
+  if (!estaLogueado()) {
+    return;
+  }
+
+  $ultimoAcceso = $_SESSION['ultimo_acceso'] ?? time();
+
+  if (time() - $ultimoAcceso > TIMEOUT_SESION) {
+    cerrarSesionConservandoTareas();
+    guardarFlash('Tu sesión ha caducado por inactividad. Vuelve a entrar.');
+    redirigir('index.php');
+  }
+
+  $_SESSION['ultimo_acceso'] = time();
+}
+
+/**
+ * Guard: si no hay nadie logueado, lo manda al login.
+ *
+ * @return void
+ */
+function requiereLogin(): void
+{
+  if (!estaLogueado()) {
+    guardarFlash('Tienes que iniciar sesión para entrar ahí.');
+    redirigir('index.php');
+  }
+}
+
+/**
+ * Guard: si el usuario no tiene el rol pedido, lo echa al panel.
+ *
+ * @param string $rol Rol necesario (usar las constantes de config.php)
+ * @return void
+ */
+function requiereRol(string $rol): void
+{
+  requiereLogin();
+
+  if ($_SESSION['usuario']['rol'] !== $rol) {
+    guardarFlash('No tienes permiso para entrar en esa sección.');
+    redirigir('index.php');
+  }
+}
+/**
+ * Cierra la sesión del usuario pero conserva las tareas que creó el PM.
+ * Decisión de diseño: las tareas son de la sesión del navegador,
+ * no del usuario (si no, el junior nunca podría verlas).
+ *
+ * @return void
+ */
+function cerrarSesionConservandoTareas(): void
+{
+  $tareasCreadas = $_SESSION['tareas_creadas'] ?? [];
+
+  // Primero se destruye todo, como pide el enunciado
+  cerrarSesion();
+
+  // Después, sesión nueva con otro ID y solo las tareas
+  arrancarSesion();
+  session_regenerate_id(true);
+  if ($tareasCreadas !== []) {
+    $_SESSION['tareas_creadas'] = $tareasCreadas;
+  }
 }
