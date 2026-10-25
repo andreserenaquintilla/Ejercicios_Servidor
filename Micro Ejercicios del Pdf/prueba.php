@@ -33,7 +33,7 @@ foreach ($usuario as $clave => $valor) {
     echo "$clave: $valor" . "<br>";
 }
 */
-
+/*
 $colores = ["rojo", "verde", "azul"];
 
 [$primero, $segundo, $tercero] = $colores;
@@ -47,3 +47,13 @@ echo "<br>";
 foreach ($colores as $color) {
   echo "- " . $color . "<br>";
 }
+*/
+
+$numeros = [1, 2, 3];
+$numerosMultiplicados = [];
+
+foreach ($numeros as $numero) {
+  $numerosMultiplicados[] = $numero * 2; 
+}
+
+$numerosMultiplicados = array_map(fn(int $n): int => $n * 2, $numeros);
