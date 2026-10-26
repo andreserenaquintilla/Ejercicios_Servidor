@@ -48,7 +48,7 @@ foreach ($colores as $color) {
   echo "- " . $color . "<br>";
 }
 */
-
+/*
 $numeros = [1, 2, 3];
 $numerosMultiplicados = [];
 
@@ -57,3 +57,11 @@ foreach ($numeros as $numero) {
 }
 
 $numerosMultiplicados = array_map(fn(int $n): int => $n * 2, $numeros);
+*/
+$numeros = [3, 8, 12, 5, 20];
+
+$grandes = array_filter($numeros, fn(int $n): bool => $n > 6);
+
+echo "<pre>";
+echo var_dump($grandes);
+echo "<pre>";
